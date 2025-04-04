@@ -106,6 +106,8 @@
   <script>
     const startButton = document.getElementById("startButton");
     const backButton = document.getElementById("backButton");
+    const downloadCSVButton = document.getElementById("downloadCSVButton");
+    const downloadCSVTopButton = document.getElementById("downloadCSVTopButton");
     const backToStartButton = document.getElementById("backToStartButton");
     const startScreen = document.getElementById("startScreen");
     const scanner = document.getElementById("scanner");
@@ -117,12 +119,34 @@
 
     let attendanceRecords = JSON.parse(localStorage.getItem("attendanceRecords")) || [];
 
-    
+    // CSVダウンロード
+    function downloadCSV() {
+      if (attendanceRecords.length === 0) {
+        alert("出席記録がありません！");
+        return;
+      }
+
+      const header = "学籍番号,タイムスタンプ\n";
+      const rows = attendanceRecords.map(record => `${record.id},${record.timestamp}`).join("\n");
+      const csvContent = "\uFEFF" + header + rows;
+      const blob = new Blob([csvContent], { type: "text/csv" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "attendance.csv";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    }
+
+    downloadCSVButton.addEventListener("click", downloadCSV);
+    downloadCSVTopButton.addEventListener("click", downloadCSV);
+
     startButton.addEventListener("click", () => {
       startScreen.style.display = "none";
       scanner.style.display = "block";
 
-      navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } })
+      navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } })
         .then((stream) => {
           video.srcObject = stream;
           video.setAttribute("playsinline", true);
@@ -150,28 +174,23 @@
           const id = code.data.trim();
           const timestamp = new Date().toLocaleString();
 
-          // QRコードスキャン後の処理（修正）
-        if (id && timestamp) {
+          if (id) {
             attendanceRecords.push({ id, timestamp });
             localStorage.setItem("attendanceRecords", JSON.stringify(attendanceRecords));
-        
+
             resultList.innerHTML = "";
             const listItem = document.createElement("li");
             listItem.textContent = `学籍番号: ${id}, 時間: ${timestamp}`;
             resultList.appendChild(listItem);
-        
-            // スプレッドシートにデータを送信
+
             sendDataToGoogleSheets(id, timestamp);
-        
+
             scanner.style.display = "none";
             resultScreen.style.display = "block";
-        
-            // **修正ポイント：ボタンのクリックイベントをリセット**
-            setTimeout(() => {
-                
-            }, 500);
+          }
         }
-
+        setTimeout(() => { isScanning = false; }, 1000);
+      }
       requestAnimationFrame(scanQRCode);
     }
 
