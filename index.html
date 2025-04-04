@@ -86,6 +86,7 @@
     <h2>横浜芸術高等専修学校</h2>
     <h1>登校記録</h1>
     <button id="startButton">QRコード</button>
+    <button id="downloadCSVTopButton">CSVダウンロード</button>
   </div>
 
   <div id="scanner">
@@ -99,6 +100,7 @@
     <h3>横浜芸術高等専修学校</h3>
     <h2>登校を記録しました</h2>
     <ul id="resultList"></ul>
+    <button id="downloadCSVButton">CSVをダウンロード</button>
     <button id="backButton">トップ画面へ戻る</button>
   </div>
 
@@ -195,7 +197,7 @@
     }
 
     function sendDataToGoogleSheets(id, timestamp) {
-      const scriptUrl = "https://script.google.com/macros/s/AKfycbyiZteS-_W5YEdfGpvspC5-mq9SRr30uJc90ItK4JQ0iWPZCa1Tb_BQ6tynU62_rYBh/exec";
+      const scriptUrl = "https://script.google.com/macros/s/YOUR_SCRIPT_ID/exec";
       const url = `${scriptUrl}?id=${encodeURIComponent(id)}&timestamp=${encodeURIComponent(timestamp)}`;
 
       fetch(url)
