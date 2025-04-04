@@ -86,7 +86,6 @@
     <h2>横浜芸術高等専修学校</h2>
     <h1>登校記録</h1>
     <button id="startButton">QRコード</button>
-    <button id="downloadCSVTopButton">CSVダウンロード</button>
   </div>
 
   <div id="scanner">
@@ -100,7 +99,6 @@
     <h3>横浜芸術高等専修学校</h3>
     <h2>登校を記録しました</h2>
     <ul id="resultList"></ul>
-    <button id="downloadCSVButton">CSVをダウンロード</button>
     <button id="backButton">トップ画面へ戻る</button>
   </div>
 
@@ -108,8 +106,6 @@
   <script>
     const startButton = document.getElementById("startButton");
     const backButton = document.getElementById("backButton");
-    const downloadCSVButton = document.getElementById("downloadCSVButton");
-    const downloadCSVTopButton = document.getElementById("downloadCSVTopButton");
     const backToStartButton = document.getElementById("backToStartButton");
     const startScreen = document.getElementById("startScreen");
     const scanner = document.getElementById("scanner");
@@ -121,29 +117,7 @@
 
     let attendanceRecords = JSON.parse(localStorage.getItem("attendanceRecords")) || [];
 
-    // CSVダウンロード
-    function downloadCSV() {
-      if (attendanceRecords.length === 0) {
-        alert("出席記録がありません！");
-        return;
-      }
-
-      const header = "学籍番号,タイムスタンプ\n";
-      const rows = attendanceRecords.map(record => `${record.id},${record.timestamp}`).join("\n");
-      const csvContent = "\uFEFF" + header + rows;
-      const blob = new Blob([csvContent], { type: "text/csv" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = "attendance.csv";
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-    }
-
-    downloadCSVButton.addEventListener("click", downloadCSV);
-    downloadCSVTopButton.addEventListener("click", downloadCSV);
-
+    
     startButton.addEventListener("click", () => {
       startScreen.style.display = "none";
       scanner.style.display = "block";
@@ -194,8 +168,7 @@
         
             // **修正ポイント：ボタンのクリックイベントをリセット**
             setTimeout(() => {
-                downloadCSVButton.removeEventListener("click", downloadCSV);
-                downloadCSVButton.addEventListener("click", downloadCSV);
+                
             }, 500);
         }
 
