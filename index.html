@@ -176,23 +176,29 @@
           const id = code.data.trim();
           const timestamp = new Date().toLocaleString();
 
-          if (id) {
+          // QRコードスキャン後の処理（修正）
+        if (id && timestamp) {
             attendanceRecords.push({ id, timestamp });
             localStorage.setItem("attendanceRecords", JSON.stringify(attendanceRecords));
-
+        
             resultList.innerHTML = "";
             const listItem = document.createElement("li");
             listItem.textContent = `学籍番号: ${id}, 時間: ${timestamp}`;
             resultList.appendChild(listItem);
-
+        
+            // スプレッドシートにデータを送信
             sendDataToGoogleSheets(id, timestamp);
-
+        
             scanner.style.display = "none";
             resultScreen.style.display = "block";
-          }
+        
+            // **修正ポイント：ボタンのクリックイベントをリセット**
+            setTimeout(() => {
+                downloadCSVButton.removeEventListener("click", downloadCSV);
+                downloadCSVButton.addEventListener("click", downloadCSV);
+            }, 500);
         }
-        setTimeout(() => { isScanning = false; }, 1000);
-      }
+
       requestAnimationFrame(scanQRCode);
     }
 
