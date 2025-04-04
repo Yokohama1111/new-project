@@ -148,7 +148,7 @@
       startScreen.style.display = "none";
       scanner.style.display = "block";
 
-      navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } })
+      navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } })
         .then((stream) => {
           video.srcObject = stream;
           video.setAttribute("playsinline", true);
