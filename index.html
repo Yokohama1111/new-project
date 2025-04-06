@@ -53,21 +53,13 @@
       background-color: #0056b3;
     }
 
-    /* ダウンロードボタンの塗りつぶしなしスタイル */
-    #downloadCSVButton, #downloadCSVTopButton {
-      background-color: transparent !important;  /* 背景を透明に */
-      color: #007bff !important;  /* ボタンの文字色を青に */
-      border: 2px solid #007bff !important;  /* 青色のボーダーを追加 */
+    #downloadCSVTopButton {
+      position: absolute;
+      top: 10px;
+      right: -400px;
       padding: 10px 20px;
       font-size: 16px;
       cursor: pointer;
-      border-radius: 10px;
-    }
-    
-    #downloadCSVButton:hover, #downloadCSVTopButton:hover {
-      background-color: #e6f2ff !important;  /* ホバー時に薄い青色 */
-      color: #0056b3 !important;  /* ホバー時に文字色を暗く */
-      border-color: #0056b3 !important;  /* ボーダー色を暗く */
     }
 
     #scanner, #resultScreen {
@@ -85,52 +77,20 @@
       margin: 10px 0; /* 上下に余白を追加 */
     }
 
-    /* ダウンロードボタンの塗りつぶしなしスタイル */
-    #downloadCSVButton, #downloadCSVTopButton {
-      background-color: transparent !important;  /* 背景を透明に */
-      color: #007bff !important;  /* ボタンの文字色を青に */
-      border: 2px solid #007bff !important;  /* 青色のボーダーを追加 */
+    #downloadCSVButton {
+      position: fixed;
+      top: 10px;
+      right: 10px;
       padding: 10px 20px;
       font-size: 16px;
       cursor: pointer;
-      border-radius: 10px;
-    }
-    
-    #downloadCSVButton:hover, #downloadCSVTopButton:hover {
-      background-color: #e6f2ff !important;  /* ホバー時に薄い青色 */
-      color: #0056b3 !important;  /* ホバー時に文字色を暗く */
-      border-color: #0056b3 !important;  /* ボーダー色を暗く */
     }
 
     video {
       border: 1px solid black;
     }
-
-    /* ボタンの横並び */
-    #buttonsContainer {
-      display: flex;
-      gap: 20px;  /* ボタン間の隙間を調整 */
-    }
-    
-    /* ボタンの青色スタイル */
-    button {
-      background-color: #007bff;
-      color: white;
-      border: none;
-      padding: 10px 20px;
-      font-size: 18px;
-      cursor: pointer;
-      border-radius: 10px;
-    }
-    
-    button:hover {
-      background-color: #0056b3;
-    }
-
   </style>
 </head>
-<!-- 先ほどのHTMLの <head> ～ <body> 開始までは変更ありません（省略） -->
-
 <body>
   <div id="startScreen">
     <h2>KYOKEI</h2>
