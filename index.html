@@ -91,12 +91,15 @@
     }
   </style>
 </head>
+<!-- 先ほどのHTMLの <head> ～ <body> 開始までは変更ありません（省略） -->
+
 <body>
   <div id="startScreen">
     <h2>KYOKEI</h2>
     <h2>横浜芸術高等専修学校</h2>
     <h1>登校記録</h1>
-    <button id="startButton">QRコード</button>
+    <button id="arrivalButton">登校</button>
+    <button id="departureButton">下校</button>
     <button id="downloadCSVTopButton">CSVダウンロード</button>
   </div>
 
@@ -110,7 +113,7 @@
   <div id="resultScreen">
     <h3>KYOKEI</h3>
     <h3>横浜芸術高等専修学校</h3>
-    <h2>登校を記録しました</h2>
+    <h2 id="recordTypeText">記録しました</h2>
     <ul id="resultList"></ul>
     <button id="downloadCSVButton">CSVをダウンロード</button>
     <button id="backButton">トップ画面へ戻る</button>
@@ -118,7 +121,8 @@
 
   <script src="https://unpkg.com/jsqr/dist/jsQR.js"></script>
   <script>
-    const startButton = document.getElementById("startButton");
+    const arrivalButton = document.getElementById("arrivalButton");
+    const departureButton = document.getElementById("departureButton");
     const backButton = document.getElementById("backButton");
     const downloadCSVButton = document.getElementById("downloadCSVButton");
     const downloadCSVTopButton = document.getElementById("downloadCSVTopButton");
@@ -128,13 +132,17 @@
     const resultScreen = document.getElementById("resultScreen");
     const video = document.getElementById("preview");
     const resultList = document.getElementById("resultList");
+    const recordTypeText = document.getElementById("recordTypeText");
     let canvasElement = document.createElement("canvas");
     let canvas = canvasElement.getContext("2d");
 
     // ローカルストレージから出席記録を読み込む
     let attendanceRecords = JSON.parse(localStorage.getItem("attendanceRecords")) || [];
 
-    // CSVダウンロード処理
+    // 登下校種別を保存する変数
+    let currentType = "";
+
+    // CSVダウンロード
     const PASSWORD = "yokogei2025";
     function downloadCSV() {
       if (attendanceRecords.length === 0) {
@@ -148,13 +156,13 @@
         return;
       }
 
-      const header = "学籍番号,タイムスタンプ\n";
-      const rows = attendanceRecords.map(record => `${record.id},${record.timestamp}`).join("\n");
+      const header = "学籍番号,タイムスタンプ,種別\n";
+      const rows = attendanceRecords.map(record =>
+        `${record.id},${record.timestamp},${record.type}`
+      ).join("\n");
       const csvContent = header + rows;
-
-      const BOM = "\uFEFF"; // UTF-8 BOM
+      const BOM = "\uFEFF";
       const csvWithBOM = BOM + csvContent;
-
       const encoder = new TextEncoder();
       const encodedCsv = encoder.encode(csvWithBOM);
 
@@ -168,16 +176,18 @@
       document.body.removeChild(a);
     }
 
-    // CSVダウンロードボタンのイベントリスナーを設定
     downloadCSVButton.addEventListener("click", downloadCSV);
     downloadCSVTopButton.addEventListener("click", downloadCSV);
 
-    // スタートボタンを押したときの動作
-    startButton.addEventListener("click", () => {
+    // 登校・下校ボタンのイベント設定
+    arrivalButton.addEventListener("click", () => startScan("登校"));
+    departureButton.addEventListener("click", () => startScan("下校"));
+
+    function startScan(type) {
+      currentType = type;
       startScreen.style.display = "none";
       scanner.style.display = "block";
 
-      // 前面カメラを使用する設定
       navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } })
         .then((stream) => {
           video.srcObject = stream;
@@ -189,11 +199,9 @@
           console.error("カメラの起動に失敗しました:", error);
           alert("カメラが利用できません。");
         });
-    });
+    }
 
-    // QRコードのスキャン処理
     let isScanning = false;
-
     function scanQRCode() {
       if (video.readyState === video.HAVE_ENOUGH_DATA && !isScanning) {
         isScanning = true;
@@ -205,23 +213,22 @@
         let code = jsQR(imageData.data, canvasElement.width, canvasElement.height);
 
         if (code) {
-          const qrData = code.data;
-          const id = qrData;  // QRコードから学籍番号だけ取得
+          const id = code.data;
           const timestamp = new Date().toLocaleString();
+          const type = currentType;
 
-          if (id) {
-            // 出席記録に学籍番号とタイムスタンプを追加
-            attendanceRecords.push({ id, timestamp });
+          if (id && type) {
+            attendanceRecords.push({ id, timestamp, type });
             localStorage.setItem("attendanceRecords", JSON.stringify(attendanceRecords));
 
             resultList.innerHTML = "";
             const listItem = document.createElement("li");
-            // 学籍番号と時間のみを表示
-            listItem.textContent = `学籍番号: ${id}, 時間: ${timestamp}`;
+            listItem.textContent = `学籍番号: ${id}, 時間: ${timestamp}, 種別: ${type}`;
             resultList.appendChild(listItem);
 
-            // スプレッドシートにデータを送信
-            sendDataToGoogleSheets(id, timestamp);
+            recordTypeText.textContent = `${type}を記録しました`;
+
+            sendDataToGoogleSheets(id, timestamp, type);
 
             scanner.style.display = "none";
             resultScreen.style.display = "block";
@@ -238,10 +245,9 @@
       requestAnimationFrame(scanQRCode);
     }
 
-    // Googleスプレッドシートにデータを送信する関数
-    function sendDataToGoogleSheets(id, timestamp) {
+    function sendDataToGoogleSheets(id, timestamp, type) {
       const scriptUrl = "https://script.google.com/macros/s/AKfycby2-h7jMj2zV_4wL9ULobWSVPmhndSxjT77WMA3OAjavz_y4MG_YgZlsT5DERupIBZB/exec";
-      const url = `${scriptUrl}?id=${encodeURIComponent(id)}&timestamp=${encodeURIComponent(timestamp)}`;
+      const url = `${scriptUrl}?id=${encodeURIComponent(id)}&timestamp=${encodeURIComponent(timestamp)}&type=${encodeURIComponent(type)}`;
 
       fetch(url)
         .then(response => response.text())
@@ -253,26 +259,20 @@
         });
     }
 
-    // QRコードスキャン画面の戻るボタンの動作
     backToStartButton.addEventListener("click", () => {
       scanner.style.display = "none";
       startScreen.style.display = "block";
-
       if (video.srcObject) {
         video.srcObject.getTracks().forEach(track => track.stop());
         video.srcObject = null;
       }
-
       resultList.innerHTML = "";
     });
 
-    // 結果画面の戻るボタンの動作
     backButton.addEventListener("click", () => {
       resultScreen.style.display = "none";
       startScreen.style.display = "block";
-
       resultList.innerHTML = "";
-
       if (video.srcObject) {
         video.srcObject.getTracks().forEach(track => track.stop());
         video.srcObject = null;
