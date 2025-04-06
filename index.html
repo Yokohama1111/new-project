@@ -18,7 +18,7 @@
     #startScreen {
     position: relative;
     display: flex;
-    flex-direction: row; /* 横並びに変更 */
+    flex-direction: column;
     align-items: center;
     justify-content: center;
     text-align: center;
@@ -29,6 +29,12 @@
     #startScreen button {
       margin: 10px; /* ボタン間の余白 */
     }
+    
+    #arrivalButton, #departureButton {
+      display: inline-block; /* 横並び */
+      margin: 10px; /* ボタン間の余白 */
+    }
+
 
 
     h1 {
