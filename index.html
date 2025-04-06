@@ -18,14 +18,19 @@
     #startScreen {
     position: relative;
     display: flex;
-    flex-direction: row; /* 横並びにする */
+    flex-direction: column; /* 元の縦並びに戻す */
     align-items: center;
     justify-content: center;
     text-align: center;
     height: 100%;
     width: 100%;
-    gap: 20px; /* ボタン間の間隔を設定 */
     }
+    
+    #startScreen button {
+      display: inline-block; /* ボタンを横並びにする */
+      margin: 10px; /* ボタン間の余白 */
+    }
+
 
 
     h1 {
