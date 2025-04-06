@@ -53,13 +53,21 @@
       background-color: #0056b3;
     }
 
-    #downloadCSVButton {
-    position: fixed;
-    top: 10px;
-    right: 10px;
-    padding: 10px 20px;
-    font-size: 16px;
-    cursor: pointer;
+    /* ダウンロードボタンの塗りつぶしなしスタイル */
+    #downloadCSVButton, #downloadCSVTopButton {
+      background-color: transparent;  /* 背景を透明に */
+      color: #007bff;  /* ボタンの文字色を青に */
+      border: 2px solid #007bff;  /* 青色のボーダーを追加 */
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+      border-radius: 10px;
+    }
+    
+    #downloadCSVButton:hover, #downloadCSVTopButton:hover {
+      background-color: #e6f2ff;  /* ホバー時に薄い青色 */
+      color: #0056b3;  /* ホバー時に文字色を暗く */
+      border-color: #0056b3;  /* ボーダー色を暗く */
     }
 
     #scanner, #resultScreen {
@@ -77,13 +85,21 @@
       margin: 10px 0; /* 上下に余白を追加 */
     }
 
-    #downloadCSVButton {
-    position: fixed;
-    top: 10px;
-    right: 10px;
-    padding: 10px 20px;
-    font-size: 16px;
-    cursor: pointer;
+    /* ダウンロードボタンの塗りつぶしなしスタイル */
+    #downloadCSVButton, #downloadCSVTopButton {
+      background-color: transparent;  /* 背景を透明に */
+      color: #007bff;  /* ボタンの文字色を青に */
+      border: 2px solid #007bff;  /* 青色のボーダーを追加 */
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+      border-radius: 10px;
+    }
+    
+    #downloadCSVButton:hover, #downloadCSVTopButton:hover {
+      background-color: #e6f2ff;  /* ホバー時に薄い青色 */
+      color: #0056b3;  /* ホバー時に文字色を暗く */
+      border-color: #0056b3;  /* ボーダー色を暗く */
     }
 
     video {
