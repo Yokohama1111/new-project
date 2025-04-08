@@ -31,16 +31,22 @@
     }
     
     #arrivalButton, #departureButton {
-  width: 120px;           /* 横幅 */
-  height: 120px;          /* 高さ */
+  width: 150px;
+  height: 150px;
   background-color: #007bff;
   color: white;
   border: none;
-  font-size: 48px;        /* 文字サイズを大きく */
-  font-weight: bold;      /* 太字にする（任意） */
+  font-size: 48px;       /* ← 文字をかなり大きく */
+  font-weight: bold;
   cursor: pointer;
-  border-radius: 20px;    /* 角丸を少し大きく */
+  border-radius: 20px;
+  padding: 0;            /* ← 余白をゼロにして文字を最大表示 */
+  display: flex;         /* ← 中央寄せ用 */
+  align-items: center;   /* ← 縦中央寄せ */
+  justify-content: center; /* ← 横中央寄せ */
+  text-align: center;
 }
+
     
     h1 {
       font-size: 2.5rem;
