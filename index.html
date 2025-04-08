@@ -34,14 +34,17 @@
     background-color: #007bff;
     color: white;
     border: none;
-    padding: 20px 40px; /* 高さと幅の余白を増やす */
-    font-size: 24px; /* フォントを大きく */
+    font-size: 24px;
     cursor: pointer;
-    border-radius: 10px;
-    width: 300px; /* ★幅を指定★ */
-    max-width: 90%; /* ★画面が狭いときの調整★ */
+    border-radius: 20px;
+    width: 150px;         /* 幅：正方形に */
+    height: 150px;        /* 高さ：正方形に */
+    display: inline-flex; /* 中央寄せのためにflexを使用 */
+    align-items: center;
+    justify-content: center;
+    margin: 20px;         /* ボタン間に十分な余白 */
     }
-
+    
     h1 {
       font-size: 2.5rem;
       margin-bottom: 20px;
