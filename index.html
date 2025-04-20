@@ -2,325 +2,191 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>QRコードリーダー</title>
+  <title>教室稼働表</title>
   <style>
-    body, html {
-      margin: 0;
-      padding: 0;
-      height: 100%;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      font-family: Arial, sans-serif;
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      table-layout: fixed;
     }
-
-    #startScreen {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    height: 100%;
-    width: 100%;
+    th, td {
+      border: 1px solid #999;
+      text-align: center;
+      padding: 8px;
+      height: 60px;
+      vertical-align: middle;
+      font-size: 14px;
     }
-    
-    #startScreen button {
-      margin: 10px; /* ボタン間の余白 */
-    }
-    
-    #arrivalButton, #departureButton {
-  width: 120px;
-  height: 120px;
-  background-color: #007bff;
-  color: white;
-  border: none;
-  font-size: 48px;       /* ← 文字をかなり大きく */
-  font-weight: bold;
-  cursor: pointer;
-  border-radius: 20px;
-  padding: 0;            /* ← 余白をゼロにして文字を最大表示 */
-  display: flex;         /* ← 中央寄せ用 */
-  align-items: center;   /* ← 縦中央寄せ */
-  justify-content: center; /* ← 横中央寄せ */
-  text-align: center;
-}
-
-    
-    h1 {
-      font-size: 2.5rem;
-      margin-bottom: 20px;
-    }
-
-    button {
-      display: block;
-      margin: 20px auto;
-      padding: 10px 20px;
-      font-size: 20px;
+    td {
       cursor: pointer;
     }
-
-    #startButton {
-      font-size: 24px;
-      padding: 20px 40px;
-      border-radius: 10px;
-      background-color: #007bff;
-      color: white;
-      border: none;
-      cursor: pointer;
-    }
-
-    #startButton:hover {
-      background-color: #0056b3;
-    }
-
-    /* 登校・下校ボタンの青色スタイル */
-    #arrivalButton, #departureButton {
-      background-color: #007bff; /* 青色 */
-      color: white; /* 文字色は白 */
-      border: none; /* ボーダーなし */
-      padding: 10px 20px;
-      font-size: 18px;
-      cursor: pointer;
-      border-radius: 10px;
-    }
-  
-    #arrivalButton:hover, #departureButton:hover {
-      background-color: #0056b3; /* ホバー時の色変更 */
-    }
-
-    /* ダウンロードボタンの右上配置 */
-    #downloadCSVButton, #downloadCSVTopButton {
-      position: fixed;
-      top: 10px;
-      right: 10px;
-      padding: 10px 20px;
-      font-size: 16px;
-      cursor: pointer;
-      z-index: 100; /* 他の要素の上に表示 */
-    }
-
-
-    #scanner, #resultScreen {
+    .modal {
       display: none;
-    }
-
-    #resultScreen {
-      position: relative;
-      padding: 20px;
-    }
-    
-    #resultList li {
-      font-size: 2rem; /* 文字サイズを大きく */
-      font-weight: bold; /* 太字にする */
-      margin: 10px 0; /* 上下に余白を追加 */
-    }
-
-    #downloadCSVButton {
       position: fixed;
-      top: 10px;
-      right: 10px;
-      padding: 10px 20px;
-      font-size: 16px;
-      cursor: pointer;
+      top: 30%;
+      left: 50%;
+      transform: translate(-50%, -30%);
+      background: white;
+      border: 1px solid #999;
+      padding: 20px;
+      z-index: 10;
     }
-
-    video {
-      border: 1px solid black;
+    .overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.3);
+      z-index: 5;
     }
   </style>
 </head>
 <body>
-  <div id="startScreen">
-  <h2>KYOKEI</h2>
-  <h2>横浜芸術高等専修学校</h2>
-  <h1>登校記録</h1>
 
-  <!-- ここを変更 -->
-  <div style="display: flex; justify-content: center; gap: 50px; flex-wrap: wrap;">
-    <button id="arrivalButton">登校</button>
-    <button id="departureButton">下校</button>
-  </div>
+<h2>教室稼働表</h2>
 
-  <button id="downloadCSVTopButton">CSVダウンロード</button>
-  </div>
-
-  <div id="scanner">
-    <h2>QRコードをかざしてください</h2>
-    <video id="preview" width="100%" height="100%" playsinline></video>
-    <p id="scanResult">横浜芸術高等専修学校</p>
-    <button id="backToStartButton">戻る</button>
-  </div>
-
-  <div id="resultScreen">
-    <h3>KYOKEI</h3>
-    <h3>横浜芸術高等専修学校</h3>
-    <h2 id="recordTypeText">記録しました</h2>
-    <ul id="resultList"></ul>
-    <button id="downloadCSVButton">CSVをダウンロード</button>
-    <button id="backButton">トップ画面へ戻る</button>
-  </div>
-
-  <script src="https://unpkg.com/jsqr/dist/jsQR.js"></script>
-  <script>
-    const arrivalButton = document.getElementById("arrivalButton");
-    const departureButton = document.getElementById("departureButton");
-    const backButton = document.getElementById("backButton");
-    const downloadCSVButton = document.getElementById("downloadCSVButton");
-    const downloadCSVTopButton = document.getElementById("downloadCSVTopButton");
-    const backToStartButton = document.getElementById("backToStartButton");
-    const startScreen = document.getElementById("startScreen");
-    const scanner = document.getElementById("scanner");
-    const resultScreen = document.getElementById("resultScreen");
-    const video = document.getElementById("preview");
-    const resultList = document.getElementById("resultList");
-    const recordTypeText = document.getElementById("recordTypeText");
-    let canvasElement = document.createElement("canvas");
-    let canvas = canvasElement.getContext("2d");
-
-    // ローカルストレージから出席記録を読み込む
-    let attendanceRecords = JSON.parse(localStorage.getItem("attendanceRecords")) || [];
-
-    // 登下校種別を保存する変数
-    let currentType = "";
-
-    // CSVダウンロード
-    const PASSWORD = "yokogei2025";
-    function downloadCSV() {
-      if (attendanceRecords.length === 0) {
-        alert("出席記録がありません！");
-        return;
-      }
-
-      const userPassword = prompt("パスワードを入力してください:");
-      if (userPassword !== PASSWORD) {
-        alert("パスワードが間違っています。");
-        return;
-      }
-
-      const header = "学籍番号,タイムスタンプ,種別\n";
-      const rows = attendanceRecords.map(record =>
-        `${record.id},${record.timestamp},${record.type}`
-      ).join("\n");
-      const csvContent = header + rows;
-      const BOM = "\uFEFF";
-      const csvWithBOM = BOM + csvContent;
-      const encoder = new TextEncoder();
-      const encodedCsv = encoder.encode(csvWithBOM);
-
-      const blob = new Blob([encodedCsv], { type: "text/csv" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = "attendance.csv";
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-    }
-
-    downloadCSVButton.addEventListener("click", downloadCSV);
-    downloadCSVTopButton.addEventListener("click", downloadCSV);
-
-    // 登校・下校ボタンのイベント設定
-    arrivalButton.addEventListener("click", () => startScan("登校"));
-    departureButton.addEventListener("click", () => startScan("下校"));
-
-    function startScan(type) {
-      currentType = type;
-      startScreen.style.display = "none";
-      scanner.style.display = "block";
-
-      navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } })
-        .then((stream) => {
-          video.srcObject = stream;
-          video.setAttribute("playsinline", true);
-          video.play();
-          requestAnimationFrame(scanQRCode);
-        })
-        .catch((error) => {
-          console.error("カメラの起動に失敗しました:", error);
-          alert("カメラが利用できません。");
-        });
-    }
-
-    let isScanning = false;
-    function scanQRCode() {
-      if (video.readyState === video.HAVE_ENOUGH_DATA && !isScanning) {
-        isScanning = true;
-
-        canvasElement.height = video.videoHeight;
-        canvasElement.width = video.videoWidth;
-        canvas.drawImage(video, 0, 0, canvasElement.width, canvasElement.height);
-        let imageData = canvas.getImageData(0, 0, canvasElement.width, canvasElement.height);
-        let code = jsQR(imageData.data, canvasElement.width, canvasElement.height);
-
-        if (code) {
-          const id = code.data;
-          const timestamp = new Date().toLocaleString();
-          const type = currentType;
-
-          if (id && type) {
-            attendanceRecords.push({ id, timestamp, type });
-            localStorage.setItem("attendanceRecords", JSON.stringify(attendanceRecords));
-
-            resultList.innerHTML = "";
-            const listItem = document.createElement("li");
-            listItem.textContent = `学籍番号: ${id}, 時間: ${timestamp}, 種別: ${type}`;
-            resultList.appendChild(listItem);
-
-            recordTypeText.textContent = `${type}を記録しました`;
-
-            sendDataToGoogleSheets(id, timestamp, type);
-
-            scanner.style.display = "none";
-            resultScreen.style.display = "block";
-          } else {
-            alert("QRコードの形式が正しくありません！");
-          }
+<table id="schedule">
+  <thead>
+    <tr>
+      <th>教室＼時間</th>
+      <script>
+        for (let i = 1; i <= 8; i++) {
+          document.write(`<th>${i}限</th>`);
         }
-
-        setTimeout(() => {
-          isScanning = false;
-        }, 1000);
+      </script>
+    </tr>
+  </thead>
+  <tbody>
+    <script>
+      for (let room = 1; room <= 15; room++) {
+        document.write(`<tr><th>教室${room}</th>`);
+        for (let period = 1; period <= 8; period++) {
+          document.write(`<td id="cell_${room}_${period}" data-room="${room}" data-period="${period}"></td>`);
+        }
+        document.write('</tr>');
       }
+    </script>
+  </tbody>
+</table>
 
-      requestAnimationFrame(scanQRCode);
+<button onclick="clearAll()" style="margin: 10px; padding: 8px 16px;">🧹 全予約を削除</button>
+
+<div class="overlay" id="overlay"></div>
+<div class="modal" id="modal">
+  <h3>予約入力</h3>
+  <label>予約者名：<input type="text" id="nameInput"></label><br><br>
+  <label>内容：<input type="text" id="contentInput"></label><br><br>
+  <button id="saveBtn">保存</button>
+  <button onclick="closeModal()">キャンセル</button>
+</div>
+
+<script>
+  let currentCell = null;
+  const storageKey = "classroomSchedule";
+  const API_URL = "https://script.google.com/macros/s/AKfycbzZ2LuVIICNrDz4KvDDIsDWY0YzJGK1Lox7RoXQnJ-fceZnC202DbmNFg-re7Uw7dKD/exec"; // あなたのURL
+                   
+  function getCellKey(cell) {
+    return `room${cell.dataset.room}_period${cell.dataset.period}`;
+  }
+
+  function closeModal() {
+    document.getElementById('modal').style.display = 'none';
+    document.getElementById('overlay').style.display = 'none';
+  }
+
+  function clearAll() {
+    if (confirm("すべての予約を削除してもよろしいですか？")) {
+      localStorage.removeItem(storageKey);
+      document.querySelectorAll('td').forEach(cell => {
+        cell.innerHTML = "";
+      });
     }
+  }
 
-    function sendDataToGoogleSheets(id, timestamp, type) {
-      const scriptUrl = "https://script.google.com/macros/s/AKfycby2-h7jMj2zV_4wL9ULobWSVPmhndSxjT77WMA3OAjavz_y4MG_YgZlsT5DERupIBZB/exec";
-      const url = `${scriptUrl}?id=${encodeURIComponent(id)}&timestamp=${encodeURIComponent(timestamp)}&type=${encodeURIComponent(type)}`;
+  window.addEventListener('DOMContentLoaded', () => {
+    // ローカル保存から読み込み
+    const savedData = JSON.parse(localStorage.getItem(storageKey)) || {};
+    document.querySelectorAll('td').forEach(cell => {
+      const key = getCellKey(cell);
+      if (savedData[key]) {
+        cell.innerHTML = `<strong>${savedData[key].name}</strong><br>${savedData[key].content}`;
+      }
+    });
 
-      fetch(url)
-        .then(response => response.text())
-        .then(data => {
-          console.log('データがスプレッドシートに追加されました:', data);
-        })
-        .catch(error => {
-          console.error('エラーが発生しました:', error);
+    // セルをクリックして予約入力
+    document.querySelectorAll('td').forEach(cell => {
+      cell.addEventListener('click', () => {
+        currentCell = cell;
+        document.getElementById('nameInput').value = "";
+        document.getElementById('contentInput').value = "";
+        document.getElementById('modal').style.display = 'block';
+        document.getElementById('overlay').style.display = 'block';
+      });
+
+      // 右クリックで削除
+      cell.addEventListener('contextmenu', (e) => {
+        e.preventDefault();
+        if (confirm("この予約をキャンセルしますか？")) {
+          const key = getCellKey(cell);
+          const data = JSON.parse(localStorage.getItem(storageKey)) || {};
+          delete data[key];
+          localStorage.setItem(storageKey, JSON.stringify(data));
+          cell.innerHTML = "";
+        }
+      });
+    });
+
+    // Googleスプレッドシートからデータ取得して反映
+    fetch(API_URL)
+      .then(res => res.json())
+      .then(data => {
+        data.forEach(item => {
+          const room = item.教室;
+          const time = item.時間帯;
+          const name = item.予約者;
+          const content = item.内容;
+          const cell = document.getElementById(`cell_${room}_${time}`);
+          if (cell) {
+            cell.innerHTML = `<strong>${name}</strong><br>${content}`;
+          }
         });
+      });
+  });
+
+  document.getElementById('saveBtn').addEventListener('click', () => {
+    const name = document.getElementById('nameInput').value.trim();
+    const content = document.getElementById('contentInput').value.trim();
+
+    if (name && content && currentCell) {
+      const room = currentCell.dataset.room;
+      const period = currentCell.dataset.period;
+      const key = getCellKey(currentCell);
+
+      const data = JSON.parse(localStorage.getItem(storageKey)) || {};
+      data[key] = { name, content };
+      localStorage.setItem(storageKey, JSON.stringify(data));
+
+      currentCell.innerHTML = `<strong>${name}</strong><br>${content}`;
+      closeModal();
+
+      // Googleスプレッドシートに送信
+      fetch(API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          教室: room,
+          時間帯: period,
+          予約者: name,
+          内容: content
+        })
+      });
+    } else {
+      alert("両方入力してください");
     }
+  });
+</script>
 
-    backToStartButton.addEventListener("click", () => {
-      scanner.style.display = "none";
-      startScreen.style.display = "block";
-      if (video.srcObject) {
-        video.srcObject.getTracks().forEach(track => track.stop());
-        video.srcObject = null;
-      }
-      resultList.innerHTML = "";
-    });
-
-    backButton.addEventListener("click", () => {
-      resultScreen.style.display = "none";
-      startScreen.style.display = "block";
-      resultList.innerHTML = "";
-      if (video.srcObject) {
-        video.srcObject.getTracks().forEach(track => track.stop());
-        video.srcObject = null;
-      }
-    });
-  </script>
 </body>
 </html>
