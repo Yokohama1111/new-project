@@ -173,15 +173,18 @@
 
       // Googleスプレッドシートに送信
       fetch(API_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          教室: room,
-          時間帯: period,
-          予約者: name,
-          内容: content
-        })
-      });
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json"
+  },
+  body: JSON.stringify({
+    教室: room,
+    時間帯: period,
+    予約者: name,
+    内容: content
+  })
+});
+
     } else {
       alert("両方入力してください");
     }
