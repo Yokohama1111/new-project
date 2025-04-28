@@ -4,17 +4,34 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>教室予約システム</title>
-  <link rel="stylesheet" href="styles.css">
+  <style>
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    th, td {
+      border: 1px solid #ddd;
+      padding: 8px;
+      text-align: center;
+    }
+    .available {
+      background-color: green;
+      color: white;
+      cursor: pointer;
+    }
+    .reserved {
+      background-color: red;
+      color: white;
+    }
+  </style>
 </head>
 <body>
 
-  <h1>教室予約状況</h1>
-
-  <!-- 教室稼働表 -->
+  <h1>教室予約システム</h1>
   <table id="schedule">
     <thead>
       <tr>
-        <th>時間帯</th>
+        <th>時間/教室</th>
         <th>教室1</th>
         <th>教室2</th>
         <th>教室3</th>
@@ -27,128 +44,55 @@
         <th>教室10</th>
         <th>教室11</th>
         <th>教室12</th>
+        <th>教室13</th>
+        <th>教室14</th>
+        <th>教室15</th>
       </tr>
     </thead>
     <tbody>
       <tr>
         <td>9:00</td>
-        <td class="available" data-room="1" data-time="9:00">空き</td>
-        <td class="booked" data-room="2" data-time="9:00">予約済</td>
-        <td class="available" data-room="3" data-time="9:00">空き</td>
-        <td class="available" data-room="4" data-time="9:00">空き</td>
-        <td class="booked" data-room="5" data-time="9:00">予約済</td>
-        <td class="available" data-room="6" data-time="9:00">空き</td>
-        <td class="available" data-room="7" data-time="9:00">空き</td>
-        <td class="booked" data-room="8" data-time="9:00">予約済</td>
-        <td class="available" data-room="9" data-time="9:00">空き</td>
-        <td class="available" data-room="10" data-time="9:00">空き</td>
-        <td class="available" data-room="11" data-time="9:00">空き</td>
-        <td class="available" data-room="12" data-time="9:00">空き</td>
+        <td class="available" onclick="reserve('教室1', '9:00')">空き</td>
+        <td class="available" onclick="reserve('教室2', '9:00')">空き</td>
+        <td class="available" onclick="reserve('教室3', '9:00')">空き</td>
+        <td class="available" onclick="reserve('教室4', '9:00')">空き</td>
+        <td class="available" onclick="reserve('教室5', '9:00')">空き</td>
+        <td class="available" onclick="reserve('教室6', '9:00')">空き</td>
+        <td class="available" onclick="reserve('教室7', '9:00')">空き</td>
+        <td class="available" onclick="reserve('教室8', '9:00')">空き</td>
+        <td class="available" onclick="reserve('教室9', '9:00')">空き</td>
+        <td class="available" onclick="reserve('教室10', '9:00')">空き</td>
+        <td class="available" onclick="reserve('教室11', '9:00')">空き</td>
+        <td class="available" onclick="reserve('教室12', '9:00')">空き</td>
+        <td class="available" onclick="reserve('教室13', '9:00')">空き</td>
+        <td class="available" onclick="reserve('教室14', '9:00')">空き</td>
+        <td class="available" onclick="reserve('教室15', '9:00')">空き</td>
       </tr>
-      <tr>
-        <td>10:00</td>
-        <td class="booked" data-room="1" data-time="10:00">予約済</td>
-        <td class="available" data-room="2" data-time="10:00">空き</td>
-        <td class="available" data-room="3" data-time="10:00">空き</td>
-        <td class="available" data-room="4" data-time="10:00">空き</td>
-        <td class="booked" data-room="5" data-time="10:00">予約済</td>
-        <td class="available" data-room="6" data-time="10:00">空き</td>
-        <td class="available" data-room="7" data-time="10:00">空き</td>
-        <td class="booked" data-room="8" data-time="10:00">予約済</td>
-        <td class="available" data-room="9" data-time="10:00">空き</td>
-        <td class="available" data-room="10" data-time="10:00">空き</td>
-        <td class="available" data-room="11" data-time="10:00">空き</td>
-        <td class="available" data-room="12" data-time="10:00">空き</td>
-      </tr>
-      <!-- 他の時間帯行も追加 -->
+      <!-- 他の時間帯も同様に -->
     </tbody>
   </table>
 
-  <div id="reservation-form">
-    <h3>予約フォーム</h3>
-    <label for="classroom">教室:</label>
-    <select id="classroom">
-      <option value="1">教室1</option>
-      <option value="2">教室2</option>
-      <option value="3">教室3</option>
-      <option value="4">教室4</option>
-      <option value="5">教室5</option>
-      <option value="6">教室6</option>
-      <option value="7">教室7</option>
-      <option value="8">教室8</option>
-      <option value="9">教室9</option>
-      <option value="10">教室10</option>
-      <option value="11">教室11</option>
-      <option value="12">教室12</option>
-    </select>
-    <label for="time">時間:</label>
-    <input type="time" id="time" value="09:00">
-    <label for="name">予約者名:</label>
-    <input type="text" id="name" placeholder="名前を入力">
-    <label for="content">予約内容:</label>
-    <input type="text" id="content" placeholder="内容を入力">
-    <button id="reserve-btn">予約</button>
-  </div>
+  <script>
+    let reservations = {}; // 予約情報を保持
 
-  <script src="scripts.js"></script>
+    function reserve(classroom, time) {
+      const key = `${classroom}-${time}`;
+      if (reservations[key]) {
+        alert(`${classroom}はすでに予約されています。`);
+      } else {
+        reservations[key] = '予約済';
+        alert(`${classroom}が${time}に予約されました。`);
+        updateSchedule(classroom, time);
+      }
+    }
+
+    function updateSchedule(classroom, time) {
+      const cell = document.querySelector(`td[onclick="reserve('${classroom}', '${time}')"]`);
+      cell.textContent = '予約済';
+      cell.classList.remove('available');
+      cell.classList.add('reserved');
+    }
+  </script>
+
 </body>
 </html>
-
-#schedule {
-  width: 100%;
-  border-collapse: collapse;
-  margin-bottom: 20px;
-}
-
-#schedule th, #schedule td {
-  padding: 10px;
-  text-align: center;
-  border: 1px solid #ddd;
-  cursor: pointer;
-}
-
-#schedule .available {
-  background-color: #e0ffe0;
-}
-
-#schedule .booked {
-  background-color: #f0f0f0;
-  color: gray;
-}
-
-#reservation-form {
-  margin-top: 20px;
-}
-
-#reservation-form input, #reservation-form select {
-  margin: 5px;
-}
-
-#reservation-form button {
-  margin-top: 10px;
-  padding: 10px;
-  background-color: #4CAF50;
-  color: white;
-  border: none;
-  cursor: pointer;
-}
-
-// 予約ボタンがクリックされた時の処理
-document.getElementById('reserve-btn').addEventListener('click', function() {
-  const classroom = document.getElementById('classroom').value;
-  const time = document.getElementById('time').value;
-  const name = document.getElementById('name').value;
-  const content = document.getElementById('content').value;
-
-  // 予約処理: ここではシンプルにアラートを表示
-  alert(`教室: ${classroom} \n時間: ${time} \n予約者名: ${name} \n予約内容: ${content}`);
-
-  // 予約成功後、予約されたセルを更新
-  const cell = document.querySelector(`td[data-room="${classroom}"][data-time="${time}"]`);
-  if (cell) {
-    cell.classList.remove('available');
-    cell.classList.add('booked');
-    cell.textContent = '予約済';
-  }
-});
-
