@@ -50,6 +50,7 @@
       </tr>
     </thead>
     <tbody>
+      <!-- 9時〜18時までの時間帯を表示 -->
       <tr>
         <td>9:00</td>
         <td class="available" onclick="reserve('教室1', '9:00')">空き</td>
@@ -68,27 +69,55 @@
         <td class="available" onclick="reserve('教室14', '9:00')">空き</td>
         <td class="available" onclick="reserve('教室15', '9:00')">空き</td>
       </tr>
-      <!-- 他の時間帯も同様に -->
+      <!-- 他の時間帯も同様に（10:00〜18:00） -->
+      <tr>
+        <td>10:00</td>
+        <td class="available" onclick="reserve('教室1', '10:00')">空き</td>
+        <td class="available" onclick="reserve('教室2', '10:00')">空き</td>
+        <td class="available" onclick="reserve('教室3', '10:00')">空き</td>
+        <td class="available" onclick="reserve('教室4', '10:00')">空き</td>
+        <td class="available" onclick="reserve('教室5', '10:00')">空き</td>
+        <td class="available" onclick="reserve('教室6', '10:00')">空き</td>
+        <td class="available" onclick="reserve('教室7', '10:00')">空き</td>
+        <td class="available" onclick="reserve('教室8', '10:00')">空き</td>
+        <td class="available" onclick="reserve('教室9', '10:00')">空き</td>
+        <td class="available" onclick="reserve('教室10', '10:00')">空き</td>
+        <td class="available" onclick="reserve('教室11', '10:00')">空き</td>
+        <td class="available" onclick="reserve('教室12', '10:00')">空き</td>
+        <td class="available" onclick="reserve('教室13', '10:00')">空き</td>
+        <td class="available" onclick="reserve('教室14', '10:00')">空き</td>
+        <td class="available" onclick="reserve('教室15', '10:00')">空き</td>
+      </tr>
+      <!-- 11時〜18時も同様に繰り返します -->
     </tbody>
   </table>
 
   <script>
     let reservations = {}; // 予約情報を保持
 
+    // 予約時の処理
     function reserve(classroom, time) {
       const key = `${classroom}-${time}`;
       if (reservations[key]) {
-        alert(`${classroom}はすでに予約されています。`);
+        alert(`${classroom}はすでに予約されています。\n予約者: ${reservations[key].name}\n内容: ${reservations[key].details}`);
       } else {
-        reservations[key] = '予約済';
-        alert(`${classroom}が${time}に予約されました。`);
-        updateSchedule(classroom, time);
+        // 予約フォームを表示
+        const name = prompt("予約者の名前を入力してください:");
+        const details = prompt("予約内容を入力してください:");
+        if (name && details) {
+          reservations[key] = { name, details };
+          alert(`${classroom}が${time}に予約されました。`);
+          updateSchedule(classroom, time, name, details);
+        } else {
+          alert("名前と内容を入力してください。");
+        }
       }
     }
 
-    function updateSchedule(classroom, time) {
+    // 予約内容をテーブルに反映
+    function updateSchedule(classroom, time, name, details) {
       const cell = document.querySelector(`td[onclick="reserve('${classroom}', '${time}')"]`);
-      cell.textContent = '予約済';
+      cell.textContent = `${name}\n${details}`;
       cell.classList.remove('available');
       cell.classList.add('reserved');
     }
