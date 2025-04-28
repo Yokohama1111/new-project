@@ -93,3 +93,62 @@
   <script src="scripts.js"></script>
 </body>
 </html>
+
+#schedule {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 20px;
+}
+
+#schedule th, #schedule td {
+  padding: 10px;
+  text-align: center;
+  border: 1px solid #ddd;
+  cursor: pointer;
+}
+
+#schedule .available {
+  background-color: #e0ffe0;
+}
+
+#schedule .booked {
+  background-color: #f0f0f0;
+  color: gray;
+}
+
+#reservation-form {
+  margin-top: 20px;
+}
+
+#reservation-form input, #reservation-form select {
+  margin: 5px;
+}
+
+#reservation-form button {
+  margin-top: 10px;
+  padding: 10px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
+// 予約ボタンがクリックされた時の処理
+document.getElementById('reserve-btn').addEventListener('click', function() {
+  const classroom = document.getElementById('classroom').value;
+  const time = document.getElementById('time').value;
+  const name = document.getElementById('name').value;
+  const content = document.getElementById('content').value;
+
+  // 予約処理: ここではシンプルにアラートを表示
+  alert(`教室: ${classroom} \n時間: ${time} \n予約者名: ${name} \n予約内容: ${content}`);
+
+  // 予約成功後、予約されたセルを更新
+  const cell = document.querySelector(`td[data-room="${classroom}"][data-time="${time}"]`);
+  if (cell) {
+    cell.classList.remove('available');
+    cell.classList.add('booked');
+    cell.textContent = '予約済';
+  }
+});
+
