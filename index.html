@@ -2,194 +2,78 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <title>教室稼働表</title>
-  <style>
-    table {
-      border-collapse: collapse;
-      width: 100%;
-      table-layout: fixed;
-    }
-    th, td {
-      border: 1px solid #999;
-      text-align: center;
-      padding: 8px;
-      height: 60px;
-      vertical-align: middle;
-      font-size: 14px;
-    }
-    td {
-      cursor: pointer;
-    }
-    .modal {
-      display: none;
-      position: fixed;
-      top: 30%;
-      left: 50%;
-      transform: translate(-50%, -30%);
-      background: white;
-      border: 1px solid #999;
-      padding: 20px;
-      z-index: 10;
-    }
-    .overlay {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0,0,0,0.3);
-      z-index: 5;
-    }
-  </style>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>教室予約システム</title>
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 
-<h2>教室稼働表</h2>
+  <!-- 教室稼働表 -->
+  <table id="schedule">
+    <thead>
+      <tr>
+        <th>時間帯</th>
+        <th>教室1</th>
+        <th>教室2</th>
+        <th>教室3</th>
+        <th>教室4</th>
+        <th>教室5</th>
+        <th>教室6</th>
+        <th>教室7</th>
+        <th>教室8</th>
+        <th>教室9</th>
+        <th>教室10</th>
+        <th>教室11</th>
+        <th>教室12</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>9:00</td>
+        <td class="available">空き</td>
+        <td class="booked">予約済</td>
+        <td class="available">空き</td>
+        <td class="available">空き</td>
+        <td class="available">空き</td>
+        <td class="available">空き</td>
+        <td class="available">空き</td>
+        <td class="booked">予約済</td>
+        <td class="available">空き</td>
+        <td class="available">空き</td>
+        <td class="available">空き</td>
+        <td class="available">空き</td>
+      </tr>
+      <!-- 他の時間帯行も同様に追加 -->
+    </tbody>
+  </table>
 
-<table id="schedule">
-  <thead>
-    <tr>
-      <th>教室＼時間</th>
-      <script>
-        for (let i = 1; i <= 8; i++) {
-          document.write(`<th>${i}限</th>`);
-        }
-      </script>
-    </tr>
-  </thead>
-  <tbody>
-    <script>
-      for (let room = 1; room <= 15; room++) {
-        document.write(`<tr><th>教室${room}</th>`);
-        for (let period = 1; period <= 8; period++) {
-          document.write(`<td id="cell_${room}_${period}" data-room="${room}" data-period="${period}"></td>`);
-        }
-        document.write('</tr>');
-      }
-    </script>
-  </tbody>
-</table>
+  <!-- 予約フォーム -->
+  <div id="reservation-form">
+    <h3>予約フォーム</h3>
+    <label for="classroom">教室:</label>
+    <select id="classroom">
+      <option value="1">教室1</option>
+      <option value="2">教室2</option>
+      <option value="3">教室3</option>
+      <option value="4">教室4</option>
+      <option value="5">教室5</option>
+      <option value="6">教室6</option>
+      <option value="7">教室7</option>
+      <option value="8">教室8</option>
+      <option value="9">教室9</option>
+      <option value="10">教室10</option>
+      <option value="11">教室11</option>
+      <option value="12">教室12</option>
+    </select>
+    <label for="time">時間:</label>
+    <input type="time" id="time" value="09:00">
+    <label for="name">予約者名:</label>
+    <input type="text" id="name" placeholder="名前を入力">
+    <label for="content">予約内容:</label>
+    <input type="text" id="content" placeholder="内容を入力">
+    <button id="reserve-btn">予約</button>
+  </div>
 
-<button onclick="clearAll()" style="margin: 10px; padding: 8px 16px;">🧹 全予約を削除</button>
-
-<div class="overlay" id="overlay"></div>
-<div class="modal" id="modal">
-  <h3>予約入力</h3>
-  <label>予約者名：<input type="text" id="nameInput"></label><br><br>
-  <label>内容：<input type="text" id="contentInput"></label><br><br>
-  <button id="saveBtn">保存</button>
-  <button onclick="closeModal()">キャンセル</button>
-</div>
-
-<script>
-  let currentCell = null;
-  const storageKey = "classroomSchedule";
-  const API_URL = "https://script.google.com/macros/s/AKfycbwt6K-MdmA3V2ApeXEPIeFLl_uMcjnZCKqYFJ5WbPIZPwec9HRn7y46uhQUlwON_rho/exec"; // あなたのURL
-                   
-  function getCellKey(cell) {
-    return `room${cell.dataset.room}_period${cell.dataset.period}`;
-  }
-
-  function closeModal() {
-    document.getElementById('modal').style.display = 'none';
-    document.getElementById('overlay').style.display = 'none';
-  }
-
-  function clearAll() {
-    if (confirm("すべての予約を削除してもよろしいですか？")) {
-      localStorage.removeItem(storageKey);
-      document.querySelectorAll('td').forEach(cell => {
-        cell.innerHTML = "";
-      });
-    }
-  }
-
-  window.addEventListener('DOMContentLoaded', () => {
-    // ローカル保存から読み込み
-    const savedData = JSON.parse(localStorage.getItem(storageKey)) || {};
-    document.querySelectorAll('td').forEach(cell => {
-      const key = getCellKey(cell);
-      if (savedData[key]) {
-        cell.innerHTML = `<strong>${savedData[key].name}</strong><br>${savedData[key].content}`;
-      }
-    });
-
-    // セルをクリックして予約入力
-    document.querySelectorAll('td').forEach(cell => {
-      cell.addEventListener('click', () => {
-        currentCell = cell;
-        document.getElementById('nameInput').value = "";
-        document.getElementById('contentInput').value = "";
-        document.getElementById('modal').style.display = 'block';
-        document.getElementById('overlay').style.display = 'block';
-      });
-
-      // 右クリックで削除
-      cell.addEventListener('contextmenu', (e) => {
-        e.preventDefault();
-        if (confirm("この予約をキャンセルしますか？")) {
-          const key = getCellKey(cell);
-          const data = JSON.parse(localStorage.getItem(storageKey)) || {};
-          delete data[key];
-          localStorage.setItem(storageKey, JSON.stringify(data));
-          cell.innerHTML = "";
-        }
-      });
-    });
-
-    // Googleスプレッドシートからデータ取得して反映
-    fetch(API_URL)
-      .then(res => res.json())
-      .then(data => {
-        data.forEach(item => {
-          const room = item.教室;
-          const time = item.時間帯;
-          const name = item.予約者;
-          const content = item.内容;
-          const cell = document.getElementById(`cell_${room}_${time}`);
-          if (cell) {
-            cell.innerHTML = `<strong>${name}</strong><br>${content}`;
-          }
-        });
-      });
-  });
-
-  document.getElementById('saveBtn').addEventListener('click', () => {
-    const name = document.getElementById('nameInput').value.trim();
-    const content = document.getElementById('contentInput').value.trim();
-
-    if (name && content && currentCell) {
-      const room = currentCell.dataset.room;
-      const period = currentCell.dataset.period;
-      const key = getCellKey(currentCell);
-
-      const data = JSON.parse(localStorage.getItem(storageKey)) || {};
-      data[key] = { name, content };
-      localStorage.setItem(storageKey, JSON.stringify(data));
-
-      currentCell.innerHTML = `<strong>${name}</strong><br>${content}`;
-      closeModal();
-
-      // Googleスプレッドシートに送信
-      fetch(API_URL, {
-  method: "POST",
-  headers: {
-    "Content-Type": "application/json"
-  },
-  body: JSON.stringify({
-    教室: room,
-    時間帯: period,
-    予約者: name,
-    内容: content
-  })
-});
-
-    } else {
-      alert("両方入力してください");
-    }
-  });
-</script>
-
+  <script src="scripts.js"></script>
 </body>
 </html>
