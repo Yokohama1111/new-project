@@ -8,6 +8,8 @@
 </head>
 <body>
 
+  <h1>教室予約状況</h1>
+
   <!-- 教室稼働表 -->
   <table id="schedule">
     <thead>
@@ -30,24 +32,38 @@
     <tbody>
       <tr>
         <td>9:00</td>
-        <td class="available">空き</td>
-        <td class="booked">予約済</td>
-        <td class="available">空き</td>
-        <td class="available">空き</td>
-        <td class="available">空き</td>
-        <td class="available">空き</td>
-        <td class="available">空き</td>
-        <td class="booked">予約済</td>
-        <td class="available">空き</td>
-        <td class="available">空き</td>
-        <td class="available">空き</td>
-        <td class="available">空き</td>
+        <td class="available" data-room="1" data-time="9:00">空き</td>
+        <td class="booked" data-room="2" data-time="9:00">予約済</td>
+        <td class="available" data-room="3" data-time="9:00">空き</td>
+        <td class="available" data-room="4" data-time="9:00">空き</td>
+        <td class="booked" data-room="5" data-time="9:00">予約済</td>
+        <td class="available" data-room="6" data-time="9:00">空き</td>
+        <td class="available" data-room="7" data-time="9:00">空き</td>
+        <td class="booked" data-room="8" data-time="9:00">予約済</td>
+        <td class="available" data-room="9" data-time="9:00">空き</td>
+        <td class="available" data-room="10" data-time="9:00">空き</td>
+        <td class="available" data-room="11" data-time="9:00">空き</td>
+        <td class="available" data-room="12" data-time="9:00">空き</td>
       </tr>
-      <!-- 他の時間帯行も同様に追加 -->
+      <tr>
+        <td>10:00</td>
+        <td class="booked" data-room="1" data-time="10:00">予約済</td>
+        <td class="available" data-room="2" data-time="10:00">空き</td>
+        <td class="available" data-room="3" data-time="10:00">空き</td>
+        <td class="available" data-room="4" data-time="10:00">空き</td>
+        <td class="booked" data-room="5" data-time="10:00">予約済</td>
+        <td class="available" data-room="6" data-time="10:00">空き</td>
+        <td class="available" data-room="7" data-time="10:00">空き</td>
+        <td class="booked" data-room="8" data-time="10:00">予約済</td>
+        <td class="available" data-room="9" data-time="10:00">空き</td>
+        <td class="available" data-room="10" data-time="10:00">空き</td>
+        <td class="available" data-room="11" data-time="10:00">空き</td>
+        <td class="available" data-room="12" data-time="10:00">空き</td>
+      </tr>
+      <!-- 他の時間帯行も追加 -->
     </tbody>
   </table>
 
-  <!-- 予約フォーム -->
   <div id="reservation-form">
     <h3>予約フォーム</h3>
     <label for="classroom">教室:</label>
