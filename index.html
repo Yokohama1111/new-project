@@ -1,160 +1,60 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>教室予約システム</title>
+  <meta charset="UTF-8" />
+  <title>教室予約システム - 年間カレンダー</title>
   <style>
-    table {
-      width: 100%;
-      border-collapse: collapse;
-    }
-    th, td {
-      border: 1px solid #ddd;
-      padding: 10px;
+    body {
+      font-family: sans-serif;
       text-align: center;
-      width: 14%;
+      margin: 20px;
     }
-    .available {
-      background-color: green;
-      color: white;
+    h1 {
+      margin-bottom: 30px;
+    }
+    .calendar {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 15px;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    .month {
+      padding: 20px;
+      background-color: #f0f0f0;
+      border-radius: 10px;
       cursor: pointer;
+      transition: background-color 0.2s;
     }
-    .reserved {
-      background-color: red;
-      color: white;
+    .month:hover {
+      background-color: #cce5ff;
     }
   </style>
 </head>
 <body>
-
   <h1>教室予約システム</h1>
-  <h2 id="month-display">月: </h2>
-
-  <!-- カレンダーの表示 -->
-  <table id="calendar">
-    <thead>
-      <tr>
-        <th>日</th>
-        <th>月</th>
-        <th>火</th>
-        <th>水</th>
-        <th>木</th>
-        <th>金</th>
-        <th>土</th>
-      </tr>
-    </thead>
-    <tbody>
-      <!-- カレンダーの日付を動的に生成します -->
-    </tbody>
-  </table>
-
-  <h3>予約情報</h3>
-  <div id="selected-date"></div>
-  <table id="schedule" style="display:none;">
-    <thead>
-      <tr>
-        <th>時間</th>
-        <th>予約内容</th>
-      </tr>
-    </thead>
-    <tbody>
-      <!-- 時間帯と予約内容を動的に生成 -->
-    </tbody>
-  </table>
+  <h2>月を選択してください</h2>
+  <div class="calendar" id="calendar"></div>
 
   <script>
-    let reservations = {}; // 予約情報
-    let currentDate = new Date();
-    
-    // カレンダーを生成
-    function generateCalendar() {
-      const monthDisplay = document.getElementById('month-display');
-      monthDisplay.textContent = `${currentDate.getFullYear()}年 ${currentDate.getMonth() + 1}月`;
-      
-      const calendarBody = document.querySelector('#calendar tbody');
-      calendarBody.innerHTML = '';
+    const calendar = document.getElementById("calendar");
+    const monthNames = [
+      "1月", "2月", "3月", "4月",
+      "5月", "6月", "7月", "8月",
+      "9月", "10月", "11月", "12月"
+    ];
 
-      const firstDayOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
-      const lastDayOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
-      
-      let date = 1;
-      let row = document.createElement('tr');
-      for (let i = 0; i < firstDayOfMonth.getDay(); i++) {
-        row.appendChild(document.createElement('td'));
-      }
-      
-      while (date <= lastDayOfMonth.getDate()) {
-        const cell = document.createElement('td');
-        cell.textContent = date;
-        cell.classList.add('available');
-        cell.onclick = () => showSchedule(date);
-        row.appendChild(cell);
-
-        if (row.children.length === 7) {
-          calendarBody.appendChild(row);
-          row = document.createElement('tr');
-        }
-
-        date++;
-      }
-
-      if (row.children.length > 0) {
-        calendarBody.appendChild(row);
-      }
-    }
-
-    // 日付を選択した場合の処理
-    function showSchedule(date) {
-      const selectedDateElement = document.getElementById('selected-date');
-      selectedDateElement.textContent = `${currentDate.getFullYear()}年${currentDate.getMonth() + 1}月${date}日 の予約状況`;
-
-      const scheduleTable = document.getElementById('schedule');
-      scheduleTable.style.display = 'block';
-
-      const scheduleBody = document.querySelector('#schedule tbody');
-      scheduleBody.innerHTML = ''; // 既存のデータをクリア
-
-      const times = ['9:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00'];
-      times.forEach(time => {
-        const row = document.createElement('tr');
-        const timeCell = document.createElement('td');
-        timeCell.textContent = time;
-        row.appendChild(timeCell);
-
-        const cell = document.createElement('td');
-        const key = `${currentDate.getFullYear()}-${currentDate.getMonth() + 1}-${date}-${time}`;
-        
-        if (reservations[key]) {
-          cell.textContent = `予約者: ${reservations[key].name}, 内容: ${reservations[key].details}`;
-        } else {
-          cell.textContent = '空き';
-          cell.classList.add('available');
-          cell.onclick = () => makeReservation(date, time);
-        }
-        
-        row.appendChild(cell);
-        scheduleBody.appendChild(row);
-      });
-    }
-
-    // 予約を行う
-    function makeReservation(date, time) {
-      const name = prompt('予約者の名前を入力してください:');
-      const details = prompt('予約内容を入力してください:');
-      if (name && details) {
-        const key = `${currentDate.getFullYear()}-${currentDate.getMonth() + 1}-${date}-${time}`;
-        reservations[key] = { name, details };
-        alert(`${time}に予約しました！`);
-
-        // 予約表を更新
-        showSchedule(date);
-      }
-    }
-
-    // 初期化
-    generateCalendar();
+    monthNames.forEach((name, index) => {
+      const div = document.createElement("div");
+      div.className = "month";
+      div.textContent = name;
+      div.onclick = () => {
+        const selectedMonth = index + 1; // 1〜12
+        // ここで月をパラメータとして次の画面に遷移
+        window.location.href = `schedule.html?month=${selectedMonth}`;
+      };
+      calendar.appendChild(div);
+    });
   </script>
-
 </body>
 </html>
