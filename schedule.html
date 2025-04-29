@@ -57,18 +57,71 @@
   </table>
 
   <script>
-    function reserveCell(cell) {
-      if (cell.innerHTML !== "") {
-        if (!confirm("このマスを上書きしますか？")) return;
-      }
-      const name = prompt("名前を入力してください：");
-      if (!name) return;
-      const content = prompt("内容を入力してください：");
-      if (!content) return;
-
-      cell.innerHTML = `${name}<br>${content}`;
-      cell.classList.add("reserved");
+  // 予約内容を保存する関数
+  function reserveCell(cell) {
+    if (cell.innerHTML !== "") {
+      if (!confirm("このマスを上書きしますか？")) return;
     }
-  </script>
+    const name = prompt("名前を入力してください：");
+    if (!name) return;
+    const content = prompt("内容を入力してください：");
+    if (!content) return;
+
+    cell.innerHTML = `${name}<br>${content}`;
+    cell.classList.add("reserved");
+
+    // 予約内容をlocalStorageに保存
+    saveReservation(cell);
+  }
+
+  // 予約内容をlocalStorageに保存する関数
+  function saveReservation(cell) {
+    const time = cell.parentElement.cells[0].innerText;  // 時間
+    const room = cell.cellIndex;  // 教室番号（列）
+    const reservationData = {
+      name: cell.innerText.split("\n")[0],
+      content: cell.innerText.split("\n")[1]
+    };
+
+    // 保存するキーを作成（例: 9:00 教室1）
+    const key = `${time} 教室${room + 1}`;
+    
+    // localStorageに保存
+    localStorage.setItem(key, JSON.stringify(reservationData));
+  }
+
+  // ページ読み込み時に予約内容を表示する処理
+  window.onload = function() {
+    const cells = document.querySelectorAll("#scheduleTable td");
+    cells.forEach(cell => {
+      const time = cell.parentElement.cells[0].innerText;  // 時間
+      const room = cell.cellIndex;  // 教室番号（列）
+      const key = `${time} 教室${room + 1}`;
+
+      // localStorageから予約内容を取得
+      const reservationData = JSON.parse(localStorage.getItem(key));
+
+      if (reservationData) {
+        cell.innerHTML = `${reservationData.name}<br>${reservationData.content}`;
+        cell.classList.add("reserved");
+      }
+    });
+  };
+
+  // 予約をキャンセルする関数（オプション）
+  function cancelReservation(cell) {
+    if (confirm("この予約をキャンセルしますか？")) {
+      cell.innerHTML = "";
+      cell.classList.remove("reserved");
+
+      const time = cell.parentElement.cells[0].innerText;
+      const room = cell.cellIndex;
+      const key = `${time} 教室${room + 1}`;
+
+      // localStorageから削除
+      localStorage.removeItem(key);
+    }
+  }
+</script>
 </body>
 </html>
