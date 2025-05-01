@@ -25,15 +25,19 @@
   </style>
 </head>
 <body>
-  <h2 id="title">教室予約表（サンプル）</h2>
+  <h2 id="title">教室予約表（教室101〜115）</h2>
   <table id="scheduleTable">
     <thead>
       <tr>
         <th>時間</th>
-        <!-- 教室1〜15 -->
         <script>
-          for (let i = 1; i <= 15; i++) {
-            document.write(`<th>教室${i}</th>`);
+          const roomNames = [
+            "応接室", "101", "102", "201", "202",
+            "203", "204", "205", "301", "302",
+            "303", "304", "図書室", "別館1F", "別館2F"
+          ];
+          for (let i = 0; i < roomNames.length; i++) {
+            document.write(`<th>${roomNames[i]}</th>`);
           }
         </script>
       </tr>
@@ -47,7 +51,7 @@
         for (let t = 0; t < times.length; t++) {
           document.write("<tr>");
           document.write(`<th>${times[t]}</th>`);
-          for (let r = 1; r <= 15; r++) {
+          for (let r = 0; r < roomNames.length; r++) {
             document.write(`<td onclick="reserveCell(this)"></td>`);
           }
           document.write("</tr>");
@@ -57,71 +61,74 @@
   </table>
 
   <script>
-  // 予約内容を保存する関数
-  function reserveCell(cell) {
-    if (cell.innerHTML !== "") {
-      if (!confirm("このマスを上書きしますか？")) return;
+    const roomNames = [
+      "応接室", "101", "102", "201", "202",
+      "203", "204", "205", "301", "302",
+      "303", "304", "図書室", "別館1F", "別館2F"    ];
+
+    function reserveCell(cell) {
+      if (cell.innerHTML !== "") {
+        if (!confirm("このマスを上書きしますか？")) return;
+      }
+      const name = prompt("名前を入力してください：");
+      if (!name) return;
+      const content = prompt("内容を入力してください：");
+      if (!content) return;
+
+      cell.innerHTML = `${name}<br>${content}`;
+      cell.classList.add("reserved");
+
+      saveReservation(cell);
     }
-    const name = prompt("名前を入力してください：");
-    if (!name) return;
-    const content = prompt("内容を入力してください：");
-    if (!content) return;
 
-    cell.innerHTML = `${name}<br>${content}`;
-    cell.classList.add("reserved");
+    function saveReservation(cell) {
+      const time = cell.parentElement.cells[0].innerText;
+      const roomIndex = cell.cellIndex - 1;  // 最初の列は「時間」なので-1
+      const room = roomNames[roomIndex];
+      const key = `${time} 教室${room}`;
 
-    // 予約内容をlocalStorageに保存
-    saveReservation(cell);
-  }
+      const reservationData = {
+        name: cell.innerText.split("\n")[0],
+        content: cell.innerText.split("\n")[1]
+      };
 
-  // 予約内容をlocalStorageに保存する関数
-  function saveReservation(cell) {
-    const time = cell.parentElement.cells[0].innerText;  // 時間
-    const room = cell.cellIndex;  // 教室番号（列）
-    const reservationData = {
-      name: cell.innerText.split("\n")[0],
-      content: cell.innerText.split("\n")[1]
+      localStorage.setItem(key, JSON.stringify(reservationData));
+    }
+
+    window.onload = function() {
+      const cells = document.querySelectorAll("#scheduleTable td");
+      cells.forEach(cell => {
+        const time = cell.parentElement.cells[0].innerText;
+        const roomIndex = cell.cellIndex - 1;
+        const room = roomNames[roomIndex];
+        const key = `${time} 教室${room}`;
+
+        const reservationData = JSON.parse(localStorage.getItem(key));
+        if (reservationData) {
+          cell.innerHTML = `${reservationData.name}<br>${reservationData.content}`;
+          cell.classList.add("reserved");
+        }
+
+        // 右クリックでキャンセルできるようにする
+        cell.oncontextmenu = function(e) {
+          e.preventDefault();
+          cancelReservation(cell);
+        };
+      });
     };
 
-    // 保存するキーを作成（例: 9:00 教室1）
-    const key = `${time} 教室${room + 1}`;
-    
-    // localStorageに保存
-    localStorage.setItem(key, JSON.stringify(reservationData));
-  }
+    function cancelReservation(cell) {
+      if (confirm("この予約をキャンセルしますか？")) {
+        const time = cell.parentElement.cells[0].innerText;
+        const roomIndex = cell.cellIndex - 1;
+        const room = roomNames[roomIndex];
+        const key = `${time} 教室${room}`;
 
-  // ページ読み込み時に予約内容を表示する処理
-  window.onload = function() {
-    const cells = document.querySelectorAll("#scheduleTable td");
-    cells.forEach(cell => {
-      const time = cell.parentElement.cells[0].innerText;  // 時間
-      const room = cell.cellIndex;  // 教室番号（列）
-      const key = `${time} 教室${room + 1}`;
-
-      // localStorageから予約内容を取得
-      const reservationData = JSON.parse(localStorage.getItem(key));
-
-      if (reservationData) {
-        cell.innerHTML = `${reservationData.name}<br>${reservationData.content}`;
-        cell.classList.add("reserved");
+        cell.innerHTML = "";
+        cell.classList.remove("reserved");
+        localStorage.removeItem(key);
       }
-    });
-  };
-
-  // 予約をキャンセルする関数（オプション）
-  function cancelReservation(cell) {
-    if (confirm("この予約をキャンセルしますか？")) {
-      cell.innerHTML = "";
-      cell.classList.remove("reserved");
-
-      const time = cell.parentElement.cells[0].innerText;
-      const room = cell.cellIndex;
-      const key = `${time} 教室${room + 1}`;
-
-      // localStorageから削除
-      localStorage.removeItem(key);
     }
-  }
-</script>
+  </script>
 </body>
 </html>
