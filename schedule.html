@@ -26,12 +26,14 @@
 </head>
 <body>
   <h2 id="title">教室予約表（教室101〜115）</h2>
+
   <table id="scheduleTable">
     <thead>
       <tr>
         <th>時間</th>
+        <!-- 教室ヘッダー -->
         <script>
-          const roomNames = [
+          window.roomNames = [
             "応接室", "101", "102", "201", "202",
             "203", "204", "205", "301", "302",
             "303", "304", "図書室", "別館1F", "別館2F"
@@ -61,11 +63,6 @@
   </table>
 
   <script>
-    const roomNames = [
-      "応接室", "101", "102", "201", "202",
-      "203", "204", "205", "301", "302",
-      "303", "304", "図書室", "別館1F", "別館2F"    ];
-
     function reserveCell(cell) {
       if (cell.innerHTML !== "") {
         if (!confirm("このマスを上書きしますか？")) return;
@@ -83,7 +80,7 @@
 
     function saveReservation(cell) {
       const time = cell.parentElement.cells[0].innerText;
-      const roomIndex = cell.cellIndex - 1;  // 最初の列は「時間」なので-1
+      const roomIndex = cell.cellIndex - 1;
       const room = roomNames[roomIndex];
       const key = `${time} 教室${room}`;
 
@@ -109,7 +106,6 @@
           cell.classList.add("reserved");
         }
 
-        // 右クリックでキャンセルできるようにする
         cell.oncontextmenu = function(e) {
           e.preventDefault();
           cancelReservation(cell);
