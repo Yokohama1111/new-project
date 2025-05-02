@@ -34,7 +34,7 @@
         <th>時間</th>
         <script>
           const roomNames = [
-            "101", "102", "201", "202", "203",
+            "応接室","101", "102", "201", "202", "203",
             "204", "205", "301", "302", "303",
             "304", "図書室", "別館1F", "別館2F"
           ];
@@ -63,6 +63,7 @@
   </table>
 
   <script>
+    // 予約を行う関数
     function reserveCell(cell) {
       if (cell.innerHTML !== "") {
         if (!confirm("このマスを上書きしますか？")) return;
@@ -77,6 +78,7 @@
       saveReservation(cell);
     }
 
+    // 予約情報をGoogleスプレッドシートに保存
     function saveReservation(cell) {
       const time = cell.parentElement.cells[0].innerText;
       const roomIndex = cell.cellIndex - 1;
@@ -85,12 +87,30 @@
 
       const reservationData = {
         name: cell.innerText.split("\n")[0],
-        content: cell.innerText.split("\n")[1]
+        content: cell.innerText.split("\n")[1],
+        date: `${new URLSearchParams(window.location.search).get('month')}-${new URLSearchParams(window.location.search).get('day')}`,
+        classroom: room,
+        time: time
       };
 
-      localStorage.setItem(key, JSON.stringify(reservationData));
+      // Google Apps Scriptに予約データを送信
+      fetch('https://script.google.com/macros/s/AKfycbx_uSQFNQ5SK8V8EtpdRgimay7Fc-nM-EJtpOAPhThKC4COvVjFpUvXz-1s4X6Cmluw/exec', { // GASの公開URLに変更
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(reservationData)
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.result === "success") {
+          console.log('予約がスプレッドシートに保存されました');
+        }
+      })
+      .catch(error => {
+        console.error('エラーが発生しました:', error);
+      });
     }
 
+    // ページがロードされたときに予約情報を読み込む
     window.onload = function() {
       const cells = document.querySelectorAll("#scheduleTable td");
       cells.forEach(cell => {
@@ -99,12 +119,20 @@
         const room = roomNames[roomIndex];
         const key = `month=${new URLSearchParams(window.location.search).get('month')}&day=${new URLSearchParams(window.location.search).get('day')}&time=${time}&room=${room}`;
 
-        const reservationData = JSON.parse(localStorage.getItem(key));
-        if (reservationData) {
-          cell.innerHTML = `${reservationData.name}<br>${reservationData.content}`;
-          cell.classList.add("reserved");
-        }
+        // Google Apps Scriptから予約情報を取得
+        fetch(`https://script.google.com/macros/s/your-script-id/exec?${key}`)
+          .then(response => response.json())
+          .then(data => {
+            if (data.result === "success" && data.reservation) {
+              cell.innerHTML = `${data.reservation.name}<br>${data.reservation.content}`;
+              cell.classList.add("reserved");
+            }
+          })
+          .catch(error => {
+            console.error('エラーが発生しました:', error);
+          });
 
+        // 右クリックでキャンセルする
         cell.oncontextmenu = function(e) {
           e.preventDefault();
           cancelReservation(cell);
@@ -112,6 +140,7 @@
       });
     };
 
+    // 予約をキャンセルする
     function cancelReservation(cell) {
       if (confirm("この予約をキャンセルしますか？")) {
         const time = cell.parentElement.cells[0].innerText;
@@ -119,9 +148,29 @@
         const room = roomNames[roomIndex];
         const key = `month=${new URLSearchParams(window.location.search).get('month')}&day=${new URLSearchParams(window.location.search).get('day')}&time=${time}&room=${room}`;
 
-        cell.innerHTML = "";
-        cell.classList.remove("reserved");
-        localStorage.removeItem(key);
+        // Google Apps Scriptにキャンセルデータを送信
+        fetch('https://script.google.com/macros/s/your-script-id/exec', { // GASの公開URLに変更
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            cancel: true,  // キャンセルフラグ
+            date: `${new URLSearchParams(window.location.search).get('month')}-${new URLSearchParams(window.location.search).get('day')}`,
+            classroom: room,
+            time: time
+          })
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.result === "success") {
+            console.log('予約がキャンセルされました');
+            // キャンセル後、セルをクリア
+            cell.innerHTML = "";
+            cell.classList.remove("reserved");
+          }
+        })
+        .catch(error => {
+          console.error('エラーが発生しました:', error);
+        });
       }
     }
   </script>
