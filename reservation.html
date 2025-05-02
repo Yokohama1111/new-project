@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <title>教室予約システム - 予約</title>
+  <style>
+    table {
+      border-collapse: collapse;
+      width: 100%;
+    }
+    th, td {
+      border: 1px solid #999;
+      padding: 8px;
+      text-align: center;
+      vertical-align: top;
+      width: 6%;
+      height: 60px;
+    }
+    th {
+      background-color: #f0f0f0;
+    }
+    .reserved {
+      background-color: #ffd;
+    }
+  </style>
+</head>
+<body>
+  <h1>教室予約システム</h1>
+  <h2 id="title">予約する教室</h2>
+
+  <table id="scheduleTable">
+    <thead>
+      <tr>
+        <th>時間</th>
+        <script>
+          const roomNames = [
+            "101", "102", "201", "202", "203",
+            "204", "205", "301", "302", "303",
+            "304", "図書室", "別館1F", "別館2F"
+          ];
+          roomNames.forEach(room => {
+            document.write(`<th>${room}</th>`);
+          });
+        </script>
+      </tr>
+    </thead>
+    <tbody>
+      <script>
+        const times = [
+          "9:00", "10:00", "11:00", "12:00", "13:00",
+          "14:00", "15:00", "16:00", "17:00", "18:00"
+        ];
+        times.forEach(time => {
+          document.write("<tr>");
+          document.write(`<th>${time}</th>`);
+          roomNames.forEach(() => {
+            document.write(`<td onclick="reserveCell(this)"></td>`);
+          });
+          document.write("</tr>");
+        });
+      </script>
+    </tbody>
+  </table>
+
+  <script>
+    function reserveCell(cell) {
+      if (cell.innerHTML !== "") {
+        if (!confirm("このマスを上書きしますか？")) return;
+      }
+      const name = prompt("名前を入力してください：");
+      if (!name) return;
+      const content = prompt("内容を入力してください：");
+      if (!content) return;
+
+      cell.innerHTML = `${name}<br>${content}`;
+      cell.classList.add("reserved");
+      saveReservation(cell);
+    }
+
+    function saveReservation(cell) {
+      const time = cell.parentElement.cells[0].innerText;
+      const roomIndex = cell.cellIndex - 1;
+      const room = roomNames[roomIndex];
+      const key = `month=${new URLSearchParams(window.location.search).get('month')}&day=${new URLSearchParams(window.location.search).get('day')}&time=${time}&room=${room}`;
+
+      const reservationData = {
+        name: cell.innerText.split("\n")[0],
+        content: cell.innerText.split("\n")[1]
+      };
+
+      localStorage.setItem(key, JSON.stringify(reservationData));
+    }
+
+    window.onload = function() {
+      const cells = document.querySelectorAll("#scheduleTable td");
+      cells.forEach(cell => {
+        const time = cell.parentElement.cells[0].innerText;
+        const roomIndex = cell.cellIndex - 1;
+        const room = roomNames[roomIndex];
+        const key = `month=${new URLSearchParams(window.location.search).get('month')}&day=${new URLSearchParams(window.location.search).get('day')}&time=${time}&room=${room}`;
+
+        const reservationData = JSON.parse(localStorage.getItem(key));
+        if (reservationData) {
+          cell.innerHTML = `${reservationData.name}<br>${reservationData.content}`;
+          cell.classList.add("reserved");
+        }
+
+        cell.oncontextmenu = function(e) {
+          e.preventDefault();
+          cancelReservation(cell);
+        };
+      });
+    };
+
+    function cancelReservation(cell) {
+      if (confirm("この予約をキャンセルしますか？")) {
+        const time = cell.parentElement.cells[0].innerText;
+        const roomIndex = cell.cellIndex - 1;
+        const room = roomNames[roomIndex];
+        const key = `month=${new URLSearchParams(window.location.search).get('month')}&day=${new URLSearchParams(window.location.search).get('day')}&time=${time}&room=${room}`;
+
+        cell.innerHTML = "";
+        cell.classList.remove("reserved");
+        localStorage.removeItem(key);
+      }
+    }
+  </script>
+</body>
+</html>
