@@ -39,9 +39,8 @@
   <script>
     const calendar = document.getElementById("calendar");
     const monthNames = [
-      "1月", "2月", "3月", "4月",
-      "5月", "6月", "7月", "8月",
-      "9月", "10月", "11月", "12月"
+      "1月", "2月", "3月", "4月", "5月", "6月",
+      "7月", "8月", "9月", "10月", "11月", "12月"
     ];
 
     monthNames.forEach((name, index) => {
@@ -50,8 +49,8 @@
       div.textContent = name;
       div.onclick = () => {
         const selectedMonth = index + 1; // 1〜12
-        // ここで月をパラメータとして次の画面に遷移
-        window.location.href = schedule.html?month=${selectedMonth};
+        // 月を選択したら、日付選択ページへ遷移
+        window.location.href = `day_select.html?month=${selectedMonth}`;
       };
       calendar.appendChild(div);
     });
