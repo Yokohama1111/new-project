@@ -25,7 +25,7 @@
   </style>
 </head>
 <body>
-  <h2 id="title">教室予約表</h2>
+  <h2 id="title">教室予約表（教室101〜115）</h2>
 
   <table id="scheduleTable">
     <thead>
@@ -75,39 +75,21 @@
       cell.innerHTML = `${name}<br>${content}`;
       cell.classList.add("reserved");
 
-      saveReservation(cell);  // Googleスプレッドシートに保存
+      saveReservation(cell);
     }
 
     function saveReservation(cell) {
       const time = cell.parentElement.cells[0].innerText;
       const roomIndex = cell.cellIndex - 1;
       const room = roomNames[roomIndex];
+      const key = `${time} 教室${room}`;
 
       const reservationData = {
-        time: time,
-        room: room,
         name: cell.innerText.split("\n")[0],
         content: cell.innerText.split("\n")[1]
       };
 
-      // Google Apps ScriptへPOSTリクエスト
-      fetch("https://script.google.com/macros/s/AKfycbw2ev8uBoSAJFCAkzwr-CYJGEJCltLdv5MEF2XQX0qhLM6ggWgwwGSwajSfMhhm_rvi/exec", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(reservationData)
-      })
-      .then(response => response.json())
-      .then(result => {
-        if (result.success) {
-          alert("✅ 予約が保存されました！");
-        } else {
-          alert("❌ 保存に失敗しました");
-        }
-      })
-      .catch(error => {
-        console.error(error);
-        alert("❌ 通信エラーが発生しました。");
-      });
+      localStorage.setItem(key, JSON.stringify(reservationData));
     }
 
     window.onload = function() {
@@ -118,20 +100,12 @@
         const room = roomNames[roomIndex];
         const key = `${time} 教室${room}`;
 
-        // Google Apps Scriptから予約データを取得
-        fetch("https://script.google.com/macros/s/AKfycbw2ev8uBoSAJFCAkzwr-CYJGEJCltLdv5MEF2XQX0qhLM6ggWgwwGSwajSfMhhm_rvi/exec")
-          .then(response => response.json())
-          .then(data => {
-            data.forEach(row => {
-              if (row[0] == time && row[1] == room) {
-                cell.innerHTML = `${row[2]}<br>${row[3]}`;
-                cell.classList.add("reserved");
-              }
-            });
-          })
-          .catch(error => console.error(error));
+        const reservationData = JSON.parse(localStorage.getItem(key));
+        if (reservationData) {
+          cell.innerHTML = `${reservationData.name}<br>${reservationData.content}`;
+          cell.classList.add("reserved");
+        }
 
-        // 右クリックで予約キャンセル
         cell.oncontextmenu = function(e) {
           e.preventDefault();
           cancelReservation(cell);
@@ -148,25 +122,7 @@
 
         cell.innerHTML = "";
         cell.classList.remove("reserved");
-
-        // Googleスプレッドシートから予約を削除
-        fetch("https://script.google.com/macros/s/AKfycbxxxxxx/exec", {
-          method: "DELETE",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ time: time, room: room })
-        })
-        .then(response => response.json())
-        .then(result => {
-          if (result.success) {
-            alert("予約がキャンセルされました");
-          } else {
-            alert("キャンセルに失敗しました");
-          }
-        })
-        .catch(error => {
-          console.error(error);
-          alert("キャンセルに失敗しました");
-        });
+        localStorage.removeItem(key);
       }
     }
   </script>
