@@ -119,7 +119,7 @@
         const key = `${time} 教室${room}`;
 
         // Google Apps Scriptから予約データを取得
-        fetch("https://script.google.com/macros/s/AKfycbxxxxxx/exec")
+        fetch("https://script.google.com/macros/s/AKfycbw2ev8uBoSAJFCAkzwr-CYJGEJCltLdv5MEF2XQX0qhLM6ggWgwwGSwajSfMhhm_rvi/exec")
           .then(response => response.json())
           .then(data => {
             data.forEach(row => {
