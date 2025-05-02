@@ -29,12 +29,49 @@
     .day:hover {
       background-color: #cce5ff;
     }
+    label {
+      margin-top: 20px;
+      display: block;
+    }
+    input, textarea {
+      width: 80%;
+      padding: 10px;
+      margin: 10px 0;
+    }
+    button {
+      padding: 10px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #45a049;
+    }
   </style>
 </head>
 <body>
   <h1>教室予約システム</h1>
   <h2>日にちを選択してください</h2>
   <div class="days" id="days"></div>
+
+  <h2 id="reservationTitle" style="display:none;">予約フォーム</h2>
+  <form id="reservationForm" style="display:none;">
+    <label for="classroom">教室番号:</label>
+    <input type="text" id="classroom" required>
+    
+    <label for="time">予約時間:</label>
+    <input type="time" id="time" required>
+    
+    <label for="name">名前:</label>
+    <input type="text" id="name" required>
+    
+    <label for="content">予約内容:</label>
+    <textarea id="content" required></textarea>
+    
+    <button type="submit">予約を送信</button>
+  </form>
 
   <script>
     const urlParams = new URLSearchParams(window.location.search);
@@ -49,7 +86,44 @@
       div.className = "day";
       div.textContent = `${i}日`;
       div.onclick = () => {
-        window.location.href = `reservation.html?month=${selectedMonth}&day=${i}`;
+        // 日付を選択した場合、予約フォームを表示
+        document.getElementById("reservationTitle").style.display = "block";
+        document.getElementById("reservationForm").style.display = "block";
+        
+        // 送信フォームに日付情報を格納
+        document.getElementById("reservationForm").onsubmit = (event) => {
+          event.preventDefault();
+          const classroom = document.getElementById("classroom").value;
+          const time = document.getElementById("time").value;
+          const name = document.getElementById("name").value;
+          const content = document.getElementById("content").value;
+
+          // GASのURLにデータを送信
+          const url = 'YOUR_GAS_URL'; // GASのURLに変更
+
+          fetch(url, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              date: `${selectedMonth}-${i}`,
+              classroom,
+              time,
+              name,
+              content
+            })
+          })
+          .then(response => response.json())
+          .then(data => {
+            alert("予約が完了しました");
+            window.location.href = "index.html"; // 完了後にトップページへ遷移
+          })
+          .catch(error => {
+            console.error("Error:", error);
+            alert("エラーが発生しました");
+          });
+        };
       };
       daysContainer.appendChild(div);
     }
