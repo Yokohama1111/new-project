@@ -1,73 +1,25 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <title>教室稼働表</title>
-  <style>
-    table { border-collapse: collapse; width: 100%; }
-    th, td { border: 1px solid #aaa; text-align: center; padding: 8px; }
-    .reserved { background-color: #f99; }
-    .available { background-color: #cfc; }
-  </style>
-</head>
-<body>
-  <h2>教室稼働表</h2>
-  <table id="scheduleTable"></table>
+<button id="reserveButton">予約</button>
+<script>
+  document.getElementById("reserveButton").onclick = () => {
+    const name = prompt("予約者名を入力:");
+    if (name) {
+      // 送信するデータ
+      const data = {
+        classroom: "教室1", // ここに動的なデータを入れる
+        time: "9:00",       // ここに動的なデータを入れる
+        name: name
+      };
 
-  <script>
-    const classrooms = Array.from({length: 15}, (_, i) => `教室${i+1}`);
-    const hours = Array.from({length: 10}, (_, i) => `${9 + i}:00`);
-
-    const table = document.getElementById("scheduleTable");
-
-    // ヘッダー
-    const headerRow = document.createElement("tr");
-    headerRow.appendChild(document.createElement("th")); // 左上の空白
-    hours.forEach(hour => {
-      const th = document.createElement("th");
-      th.textContent = hour;
-      headerRow.appendChild(th);
-    });
-    table.appendChild(headerRow);
-
-    // 行を生成
-    classrooms.forEach(room => {
-      const tr = document.createElement("tr");
-      const roomCell = document.createElement("th");
-      roomCell.textContent = room;
-      tr.appendChild(roomCell);
-
-      hours.forEach(hour => {
-        const td = document.createElement("td");
-        td.className = "available";
-        td.textContent = "空き";
-        td.onclick = () => {
-          const name = prompt("予約者名を入力:");
-          if (name) {
-            td.textContent = name;
-            td.className = "reserved";
-
-            // ✅ GASのURLに送信
-            fetch("https://script.google.com/macros/s/AKfycbwNtSC5TfHzU93xW-KCqzJWwNB4K6dgjyF4yjUvOiszeTQgi1jXt0Hj3egFNVw1UzJ_/exec", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                classroom: room,
-                time: hour,
-                name: name
-              })
-            }).then(res => res.json()).then(res => {
-              console.log("予約送信成功:", res);
-            }).catch(err => {
-              console.error("送信失敗", err);
-            });
-          }
-        };
-
-        tr.appendChild(td);
+      // GASのURLにPOSTリクエスト
+      fetch("https://script.google.com/macros/s/AKfycbwNtSC5TfHzU93xW-KCqzJWwNB4K6dgjyF4yjUvOiszeTQgi1jXt0Hj3egFNVw1UzJ_/exec", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data)
+      }).then(res => res.json()).then(res => {
+        console.log("予約送信成功:", res);
+      }).catch(err => {
+        console.error("送信失敗", err);
       });
-
-      table.appendChild(tr);
-    });
-  </script>
-</body>
-</html>
+    }
+  };
+</script>
