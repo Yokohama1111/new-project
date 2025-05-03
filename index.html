@@ -45,8 +45,24 @@
           if (name) {
             td.textContent = name;
             td.className = "reserved";
+
+            // ✅ GASのURLに送信
+            fetch("https://script.google.com/macros/s/AKfycbwNtSC5TfHzU93xW-KCqzJWwNB4K6dgjyF4yjUvOiszeTQgi1jXt0Hj3egFNVw1UzJ_/exec", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                classroom: room,
+                time: hour,
+                name: name
+              })
+            }).then(res => res.json()).then(res => {
+              console.log("予約送信成功:", res);
+            }).catch(err => {
+              console.error("送信失敗", err);
+            });
           }
         };
+
         tr.appendChild(td);
       });
 
