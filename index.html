@@ -1,34 +1,13 @@
 <!DOCTYPE html>
-<html>
+<html lang="ja">
 <head>
-  <title>予約フォーム</title>
+  <meta charset="UTF-8">
+  <title>教室予約状況</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <h2>教室予約</h2>
-  <form id="reservationForm">
-    名前: <input type="text" name="name" required><br>
-    日付: <input type="date" name="date" required><br>
-    <button type="submit">予約する</button>
-  </form>
-
-  <p id="response"></p>
-
-  <script>
-    document.getElementById('reservationForm').addEventListener('submit', function(e) {
-      e.preventDefault();
-      const formData = new FormData(this);
-      fetch('https://script.google.com/macros/s/AKfycbwNtSC5TfHzU93xW-KCqzJWwNB4K6dgjyF4yjUvOiszeTQgi1jXt0Hj3egFNVw1UzJ_/exec', {
-        method: 'POST',
-        body: formData
-      })
-      .then(response => response.text())
-      .then(result => {
-        document.getElementById('response').innerText = result;
-      })
-      .catch(error => {
-        document.getElementById('response').innerText = 'エラー: ' + error;
-      });
-    });
-  </script>
+  <h1>教室予約状況</h1>
+  <div id="schedule"></div>
+  <script src="script.js"></script>
 </body>
 </html>
